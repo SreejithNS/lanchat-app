@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>LAN Chat @1.0.0.010A</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+   <!---script src="/toastjs" type="text/javascript"></script>
+   <link href="/toastcss" type="text/css" rel="stylesheet"-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="http://cdn.socket.io/socket.io-1.0.3.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/index.css">
+
+   <script>
+   
+   	var socket = io('192.168.1.107:8000',{transports: ['websocket'], upgrade: false});
+   	console.log("INIT");
+   		var send = ()=>{
+         var data = {
+            id : id,
+            name : name,
+            msg : document.querySelector("#msg").value
+         }
+         socket.emit("msg",data);
+         document.querySelector("#msg").value = "";
+      }
+      var push = (user,data) => {
+            var a = document.createElement("div");
+            a.className = "msg";
+            var p = document.createElement("p");
+            var b = document.createElement("span");
+            b.innerText = user;
+            b.className = "msgspan"
+            a.append(b);
+            p.innerText = data;
+            p.style.margin = "0px";
+            a.append(p);
+            document.querySelector("#msgcont").append(a);
+      }
+      var name = (prompt) ? prompt("Enter your name:") : Math.floor(Math.random()*100);/*function(){
+            if(typeOf(prompt) !== "undefined"){return prompt('Enter your name')}else {var k  = "pc";return k}
+         };*/
+      var id;
+
+      const cliData = {name : name};
+
+  document.addEventListener('deviceready', function() {
+   	  //var host = prompt('Enter IP:');
+   	  console.log("ready");
+      socket.on('connect', function() {
+     
+        alert("Connected!");
+       	
+     	});
+      socket.on('online',(data)=>{document.getElementById('usercount').innerHTML = data;});
+
+      socket.on('cliOnline',(data)=>{
+         //toast.showSuccess("New Buddy!", data + " is Online", "top-right", 1400);
+      });
+
+      socket.emit('cli',cliData);
+
+      socket.on("msg",(data)=>{push(data.name,data.msg)});
+
+      
+       });
+   </script>
+
+   <body>
+
+         <div class="chatscreen">
+            <div class="messages-container" id="msgcont">
+               <div class="msg"><span>Welcome to LanChat!</span><br>- <i>Developed by <b>Sreejith N</b></i></div>
+            </div>
+
+            <div class="bottom">
+               <div class="pushcont">
+                  <input type="text" class="pushbox" id="msg" placeholder="Type here" />
+                  <input type="button" class="pushb" onclick="send()" value="Send"/>
+               </div>
+            </div>
+         </div>
+            <div class="top">Online Users:<span id="usercount"></span></div>
+   </body>
+   <script type="text/javascript">
+      document.querySelector("#msg").addEventListener('keypress',(e)=>{
+         if(e.keyCode == 13 || e.which == 13){send()}
+      });
+   </script>
+
+
+</html>
